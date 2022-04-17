@@ -6,6 +6,9 @@ import pandas as pd
 from IMLearn.base import BaseEstimator
 from sklearn.model_selection import train_test_split
 
+from_date = np.datetime64('2018-12-04')
+to_date = np.datetime64('2018-12-16')
+
 
 def load_data(filename: str):
     """
@@ -24,7 +27,8 @@ def load_data(filename: str):
     3) Tuple of ndarray of shape (n_samples, n_features) and ndarray of shape (n_samples,)
     """
     # TODO - replace below code with any desired preprocessing
-    full_data = pd.read_csv(filename, parse_dates=["booking_datetime", "cancellation_datetime", "checkin_date", "checkout_date"]).drop_duplicates()
+    full_data = pd.read_csv(filename, parse_dates=["booking_datetime", "cancellation_datetime", "checkin_date",
+                                                   "checkout_date"]).drop_duplicates()
     features = full_data[["checkin_date",
                           "booking_datetime",
                           "checkout_date",
@@ -40,7 +44,8 @@ def load_data(filename: str):
 
 
 def load_test_set(file_name: str):
-    full_data = pd.read_csv(file_name, parse_dates=["checkin_date", "booking_datetime", "checkout_date"]).drop_duplicates()
+    full_data = pd.read_csv(file_name,
+                            parse_dates=["checkin_date", "booking_datetime", "checkout_date"]).drop_duplicates()
     features = full_data[["checkin_date",
                           "booking_datetime",
                           "checkout_date",
@@ -78,8 +83,10 @@ def evaluate_and_export(estimator: BaseEstimator, X: np.ndarray, real_values, fi
 def predict_test_set(estimator: BaseEstimator, X: np.ndarray, file_name: str):
     pd.DataFrame({"predictrd_Values": estimator.predict(X)}).to_csv(file_name, index=False)
 
+
 def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .75):
     return train_test_split(np.array(X), np.array(y), train_size=train_proportion)
+
 
 if __name__ == '__main__':
     # Load data
@@ -90,7 +97,9 @@ if __name__ == '__main__':
     test_set = load_test_set("datasets/test_set_week_1.csv")
 
     # Store model predictions over test set
-    evaluate_and_export(estimator, np.array(test_X), AgodaCancellationEstimator.adjust_response(test_X[:, 1], test_y),
+    evaluate_and_export(estimator, np.array(test_X), AgodaCancellationEstimator.adjust_true_labels(test_y,
+                                                                                                   from_date,
+                                                                                                   to_date),
                         "check_prediction.csv")
     predict_test_set(estimator, np.array(test_set), "316080076_313598492_318456290.csv")
     print("score is:")

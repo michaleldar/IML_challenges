@@ -77,8 +77,21 @@ class AgodaCancellationEstimator(BaseEstimator):
         return new_y
 
     @staticmethod
+    def adjust_true_labels(y, from_date, to_date):
+        new_y = np.zeros(y.shape[0])
+        for sample in range(y.shape[0]):
+            if not AgodaCancellationEstimator.isnat(y[sample]):
+                new_y[sample] = 0
+            elif y[sample] >= from_date and y[sample] <= to_date:
+                new_y[sample] = 1
+            else:
+                new_y[sample] = 0
+        return new_y
+
+    @staticmethod
     def predicted_cancellation_in_range(booking_date, days_to_cancel, from_date, to_date):
-        cancellation_date = [booking_date[i] + np.timedelta64(int(days_to_cancel[i]), 'D') for i in range(booking_date.shape[0])]
+        cancellation_date = [booking_date[i] + np.timedelta64(int(days_to_cancel[i]), 'D') for i in
+                             range(booking_date.shape[0])]
         prediction = []
         for i in range(booking_date.shape[0]):
             if (cancellation_date[i] >= from_date) and (cancellation_date[i] <= to_date):
@@ -109,14 +122,14 @@ class AgodaCancellationEstimator(BaseEstimator):
         # not sure but made better score
         # col_5 = X[:, 5]
 
-        #cancellation policy
+        # cancellation policy
         col_6 = AgodaCancellationEstimator.canellation_policy(X[:, 6])
 
         col_7 = AgodaCancellationEstimator.first_booking(X[:, 7])
         # number of children
         # col_5 = X[:, 5]
         # number of adults
-        #col_5 = X[:, 5]
+        # col_5 = X[:, 5]
         return np.array([col_1, col_2, col_3, col_4, col_6, col_7]).T
 
     @staticmethod
@@ -171,7 +184,8 @@ class AgodaCancellationEstimator(BaseEstimator):
             Predicted responses of given samples
         """
         c = self.estimator_.predict(AgodaCancellationEstimator.adjust_data(X))
-        return AgodaCancellationEstimator.predicted_cancellation_in_range(X[:, 0], c, np.datetime64('2018-12-04'), np.datetime64('2018-12-16'))
+        return AgodaCancellationEstimator.predicted_cancellation_in_range(X[:, 0], c, np.datetime64('2018-12-04'),
+                                                                          np.datetime64('2018-12-16'))
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -190,5 +204,10 @@ class AgodaCancellationEstimator(BaseEstimator):
         loss : float
             Performance under loss function
         """
-        return self.estimator_.score(AgodaCancellationEstimator.adjust_data(X),
-                                     AgodaCancellationEstimator.adjust_response(X[:, 1], y))
+        predictions = self.predict(X)
+        new_y= AgodaCancellationEstimator.adjust_true_labels(y, np.datetime64('2018-12-04'),np.datetime64('2018-12-16'))
+        sum = 0
+        for i in range(y.shape[0]):
+            if predictions[i] == new_y[i]:
+                sum += 1
+        return y.shape[0] / sum
