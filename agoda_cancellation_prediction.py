@@ -1,4 +1,4 @@
-import AgodaCancellationEstimator
+from agoda_cancellation_estimator import AgodaCancellationEstimator
 from IMLearn.utils import split_train_test
 
 import numpy as np
@@ -81,7 +81,7 @@ def predict_test_set(estimator: BaseEstimator, X: np.ndarray, file_name: str):
 
 if __name__ == '__main__':
     # Load data
-    data, cancellation_labels = load_data("../datasets/agoda_cancellation_train.csv")
+    data, cancellation_labels = load_data("datasets/agoda_cancellation_train.csv")
     train_X, test_X, train_y, test_y = split_train_test(data, cancellation_labels)
     # Fit model over data
     estimator = AgodaCancellationEstimator().fit(np.array(train_X), np.array(train_y))
