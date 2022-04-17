@@ -30,6 +30,7 @@ class AgodaCancellationEstimator(BaseEstimator):
 
         """
         self.estimator_ = LogisticRegression()
+        # self.estimator_ = LinearRegression()
         self.fitted_ = False
         super().__init__()
 
@@ -51,7 +52,7 @@ class AgodaCancellationEstimator(BaseEstimator):
         """
         data = AgodaCancellationEstimator.adjust_data(X)
         # y_adjusted = AgodaCancellationEstimator.adjust_response(y)
-        y_adjusted = AgodaCancellationEstimator.adjust_response_1(X[:,1], y)
+        y_adjusted = AgodaCancellationEstimator.adjust_response_1(X[:, 1], y)
         self.estimator_.fit(data, y_adjusted)
         self.fitted_ = True
 
@@ -86,7 +87,7 @@ class AgodaCancellationEstimator(BaseEstimator):
     @staticmethod
     def adjust_data(X):
         # days between booking and check in
-        # col_1 = AgodaCancellationEstimator.date_to_days(X[:, 0]) - AgodaCancellationEstimator.date_to_days(X[:, 1])
+        col_1 = AgodaCancellationEstimator.date_to_days(X[:, 0]) - AgodaCancellationEstimator.date_to_days(X[:, 1])
         # days between checkout and check in
         col_2 = AgodaCancellationEstimator.date_to_days(X[:, 2]) - AgodaCancellationEstimator.date_to_days(X[:, 0])
         # payment method(now/later)
@@ -105,7 +106,7 @@ class AgodaCancellationEstimator(BaseEstimator):
         # col_5 = X[:, 5]
         # number of adults
         #col_5 = X[:, 5]
-        return np.array([X[:, 0], col_2, col_3, col_4, col_6, col_7]).T
+        return np.array([col_1, col_2, col_3, col_4, col_6, col_7]).T
 
     @staticmethod
     def first_booking(X):
