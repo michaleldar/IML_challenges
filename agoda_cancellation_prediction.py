@@ -78,6 +78,8 @@ def evaluate_and_export(estimator: BaseEstimator, X: np.ndarray, real_values, fi
 def predict_test_set(estimator: BaseEstimator, X: np.ndarray, file_name: str):
     pd.DataFrame({"predictrd_Values": estimator.predict(X)}).to_csv(file_name, index=False)
 
+def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .75):
+    return train_test_split(np.array(X), np.array(y), train_size=train_proportion)
 
 if __name__ == '__main__':
     # Load data
@@ -85,7 +87,7 @@ if __name__ == '__main__':
     train_X, test_X, train_y, test_y = split_train_test(data, cancellation_labels)
     # Fit model over data
     estimator = AgodaCancellationEstimator().fit(np.array(train_X), np.array(train_y))
-    test_set = load_test_set("test_set_week_4.csv")
+    test_set = load_test_set("datasets/test_set_week_4.csv")
 
     # Store model predictions over test set
     evaluate_and_export(estimator, np.array(test_X), AgodaCancellationEstimator.adjust_response(test_y),
