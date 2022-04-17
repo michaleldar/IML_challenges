@@ -52,22 +52,22 @@ class AgodaCancellationEstimator(BaseEstimator):
         """
         data = AgodaCancellationEstimator.adjust_data(X)
         # y_adjusted = AgodaCancellationEstimator.adjust_response(y)
-        y_adjusted = AgodaCancellationEstimator.adjust_response_1(X[:, 1], y)
+        y_adjusted = AgodaCancellationEstimator.adjust_response(X[:, 1], y)
         self.estimator_.fit(data, y_adjusted)
         self.fitted_ = True
 
-    @staticmethod
-    def adjust_response(X):
-        y = np.zeros(X.shape[0])
-        for sample in range(X.shape[0]):
-            if isinstance(X[sample], str):
-                y[sample] = 1
-            else:
-                y[sample] = 0
-        return y
+    # @staticmethod
+    # def adjust_response(X):
+    #     y = np.zeros(X.shape[0])
+    #     for sample in range(X.shape[0]):
+    #         if isinstance(X[sample], str):
+    #             y[sample] = 1
+    #         else:
+    #             y[sample] = 0
+    #     return y
 
     @staticmethod
-    def adjust_response_1(dates, y):
+    def adjust_response(dates, y):
         new_y = np.zeros(y.shape[0])
         for sample in range(y.shape[0]):
             if not AgodaCancellationEstimator.isnat(y[sample]):
@@ -87,9 +87,9 @@ class AgodaCancellationEstimator(BaseEstimator):
     @staticmethod
     def adjust_data(X):
         # days between booking and check in
-        col_1 = AgodaCancellationEstimator.date_to_days(X[:, 0]) - AgodaCancellationEstimator.date_to_days(X[:, 1])
+        col_1 = AgodaCancellationEstimator.date_to_days(X[:, 0], X[:, 1])
         # days between checkout and check in
-        col_2 = AgodaCancellationEstimator.date_to_days(X[:, 2]) - AgodaCancellationEstimator.date_to_days(X[:, 0])
+        col_2 = AgodaCancellationEstimator.date_to_days(X[:, 0], X[:, 2])
         # payment method(now/later)
         col_3 = AgodaCancellationEstimator.pay_Now_or_later(X[:, 3])
         # is first booking
@@ -141,13 +141,9 @@ class AgodaCancellationEstimator(BaseEstimator):
         return y
 
     @staticmethod
-    def date_to_days(X):
-        def s_to_int(s):
-            splited_by_space = s.split()
-            splited_by_backslash = splited_by_space[0].split("-")
-            return int(splited_by_backslash[0]) + int(splited_by_backslash[1]) * 30 + int(splited_by_backslash[2]) * 365
-
-        return np.array([s_to_int(s) for s in X])
+    def date_to_days(X1, X2):
+        delta = X1 - X2
+        return np.array([s.days for s in delta])
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -183,4 +179,4 @@ class AgodaCancellationEstimator(BaseEstimator):
             Performance under loss function
         """
         return self.estimator_.score(AgodaCancellationEstimator.adjust_data(X),
-                                     AgodaCancellationEstimator.adjust_response(y))
+                                     AgodaCancellationEstimator.adjust_response(X[:, 1], y))
