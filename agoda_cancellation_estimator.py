@@ -3,6 +3,7 @@ from typing import NoReturn
 
 import sklearn.linear_model
 from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression
 
 from IMLearn.base import BaseEstimator
 import numpy as np
@@ -29,8 +30,7 @@ class AgodaCancellationEstimator(BaseEstimator):
         ----------
 
         """
-        self.estimator_ = LogisticRegression()
-        # self.estimator_ = LinearRegression()
+        self.estimator_ = LinearRegression()
         self.fitted_ = False
         super().__init__()
 
@@ -75,6 +75,17 @@ class AgodaCancellationEstimator(BaseEstimator):
             else:
                 new_y[sample] = -1
         return new_y
+
+    @staticmethod
+    def predicted_cancellation_in_range(booking_date, days_to_cancel, from_date, to_date):
+        cancellation_date = [booking_date[i] + np.timedelta64(int(days_to_cancel[i]), 'D') for i in range(booking_date.shape[0])]
+        prediction = []
+        for i in range(booking_date.shape[0]):
+            if (cancellation_date[i] >= from_date) and (cancellation_date[i] <= to_date):
+                prediction.append(1)
+            else:
+                prediction.append(0)
+        return np.array(prediction)
 
     @staticmethod
     def isnat(sample):
@@ -159,7 +170,8 @@ class AgodaCancellationEstimator(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        return self.estimator_.predict(AgodaCancellationEstimator.adjust_data(X))
+        c = self.estimator_.predict(AgodaCancellationEstimator.adjust_data(X))
+        return AgodaCancellationEstimator.predicted_cancellation_in_range(X[:, 0], c, np.datetime64('2018-12-04'), np.datetime64('2018-12-16'))
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
