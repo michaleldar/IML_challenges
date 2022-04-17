@@ -24,7 +24,7 @@ def load_data(filename: str):
     3) Tuple of ndarray of shape (n_samples, n_features) and ndarray of shape (n_samples,)
     """
     # TODO - replace below code with any desired preprocessing
-    full_data = pd.read_csv(filename).drop_duplicates()
+    full_data = pd.read_csv(filename, parse_dates=["booking_datetime", "cancellation_datetime"]).drop_duplicates()
     features = full_data[["checkin_date",
                           "booking_datetime",
                           "checkout_date",
@@ -92,6 +92,6 @@ if __name__ == '__main__':
     # Store model predictions over test set
     evaluate_and_export(estimator, np.array(test_X), AgodaCancellationEstimator.adjust_response(test_y),
                         "check_prediction.csv")
-    predict_test_set(estimator, np.array(test_set),"316080076_313598492_318456290.csv")
+    predict_test_set(estimator, np.array(test_set), "316080076_313598492_318456290.csv")
     print("score is:")
     print(estimator.loss(np.array(test_X), np.array(test_y)))
