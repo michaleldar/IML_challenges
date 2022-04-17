@@ -69,13 +69,19 @@ class AgodaCancellationEstimator(BaseEstimator):
     def adjust_response_1(dates, y):
         new_y = np.zeros(y.shape[0])
         for sample in range(y.shape[0]):
-            if isinstance(y[sample], np.datetime64) and y[sample].data:
-                print(y[sample])
-                new_y[sample] = y[sample] - dates[sample]
+            if not AgodaCancellationEstimator.isnat(y[sample]):
+                new_y[sample] = (y[sample] - dates[sample]).days
             else:
-
                 new_y[sample] = -1
         return new_y
+
+    @staticmethod
+    def isnat(sample):
+        nat_as_integer = np.datetime64('NAT').view('i8')
+        dtype_string = str(sample.dtype)
+        if 'datetime64' in dtype_string or 'timedelta64' in dtype_string:
+            return sample.view('i8') == nat_as_integer
+        return False  # it can't be a NaT if it's not a dateime
 
     @staticmethod
     def adjust_data(X):
