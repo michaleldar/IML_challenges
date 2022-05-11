@@ -94,7 +94,7 @@ if __name__ == '__main__':
     train_X, test_X, train_y, test_y = split_train_test(data, cancellation_labels)
     # Fit model over data
     estimator = AgodaCancellationEstimator().fit(np.array(train_X), np.array(train_y))
-    test_set = load_test_set("datasets/test_set_week_1.csv")
+    test_set = load_test_set("datasets/test_set_week_4.csv")
 
     # Store model predictions over test set
     evaluate_and_export(estimator, np.array(test_X), AgodaCancellationEstimator.adjust_true_labels(test_y,
@@ -104,3 +104,4 @@ if __name__ == '__main__':
     predict_test_set(estimator, np.array(test_set), "316080076_313598492_318456290.csv")
     print("score is:")
     print(estimator.loss(np.array(test_X), np.array(test_y)))
+    # print(estimator.estimator_.score(np.array(test_X[:, :6]), np.array(test_y)))

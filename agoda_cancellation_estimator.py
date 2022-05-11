@@ -4,6 +4,7 @@ from typing import NoReturn
 import sklearn.linear_model
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import AdaBoostClassifier
 
 from IMLearn.base import BaseEstimator
 import numpy as np
@@ -30,7 +31,7 @@ class AgodaCancellationEstimator(BaseEstimator):
         ----------
 
         """
-        self.estimator_ = LinearRegression()
+        self.estimator_ = LinearRegression()# AdaBoostClassifier()
         self.fitted_ = False
         super().__init__()
 
@@ -166,7 +167,7 @@ class AgodaCancellationEstimator(BaseEstimator):
 
     @staticmethod
     def date_to_days(X1, X2):
-        delta = X1 - X2
+        delta = abs(X1 - X2)
         return np.array([s.days for s in delta])
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
