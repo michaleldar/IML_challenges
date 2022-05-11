@@ -5,6 +5,7 @@ import sklearn.linear_model
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import AdaBoostClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 from IMLearn.base import BaseEstimator
 import numpy as np
@@ -31,7 +32,7 @@ class AgodaCancellationEstimator(BaseEstimator):
         ----------
 
         """
-        self.estimator_ = LinearRegression()# AdaBoostClassifier()
+        self.estimator_ = KNeighborsClassifier(13)  # LinearRegression()
         self.fitted_ = False
         super().__init__()
 
@@ -126,12 +127,12 @@ class AgodaCancellationEstimator(BaseEstimator):
         # cancellation policy
         col_6 = AgodaCancellationEstimator.canellation_policy(X[:, 6])
 
-        col_7 = AgodaCancellationEstimator.first_booking(X[:, 7])
+        # col_7 = AgodaCancellationEstimator.first_booking(X[:, 7])
         # number of children
         # col_5 = X[:, 5]
         # number of adults
         # col_5 = X[:, 5]
-        return np.array([col_1, col_2, col_3, col_4, col_6, col_7]).T
+        return np.array([col_1, col_2, col_3, col_4, col_6]).T
 
     @staticmethod
     def first_booking(X):
@@ -211,4 +212,4 @@ class AgodaCancellationEstimator(BaseEstimator):
         for i in range(y.shape[0]):
             if predictions[i] == new_y[i]:
                 sum += 1
-        return y.shape[0] / sum
+        return sum / y.shape[0]
